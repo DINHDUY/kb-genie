@@ -1,0 +1,43 @@
+{
+  "name": "kb-genie",
+  "version": "1.0.0",
+  "description": "Cursor plugin that turns raw technical documents into an agent-optimized knowledge base. This package is a companion CLI that initializes a knowledge-base folder template.",
+  "bin": {
+    "kb-genie": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "init": "node bin/cli.js init",
+    "validate": "node scripts/validate-plugin.mjs"
+  },
+  "keywords": [
+    "cursor-plugin",
+    "knowledge-base",
+    "kb-genie",
+    "ingestion",
+    "chunking"
+  ],
+  "author": "TODO",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TODO/kb-genie"
+  },
+  "homepage": "https://example.com/TODO",
+  "bugs": {
+    "url": "https://github.com/TODO/kb-genie/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin/",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {},
+  "publishConfig": {
+    "access": "public"
+  }
+}

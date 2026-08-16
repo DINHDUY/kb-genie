@@ -1,0 +1,20 @@
+---
+description: Conventions for KB Genie knowledge-base folders — never mutate raw/, keep schemas, treat index.yaml as authoritative
+alwaysApply: false
+globs:
+  - "knowledge-base/**"
+  - "**/index.yaml"
+---
+
+# Knowledge base conventions
+
+When working in a KB Genie knowledge base:
+
+- Never modify files under `raw/`. Those originals are immutable.
+- Write processed output only to `markdown/`, `summaries/`, `chunks/`, `concepts/`, `graphs/`, `logs/`, `tasks/`, and `index.yaml`.
+- Treat `index.yaml` as the authoritative catalog. After adding or changing processed documents, keep it in sync via `kb-indexer`.
+- Preserve required frontmatter schemas for summaries, chunks, and concept pages.
+- Every chunk needs a non-empty `summary`, `semantic_key`, and at least one `potential_question`.
+- Every concept page needs a Definition section and at least one source citation.
+- Every document summary needs a non-empty `relevance_to_software` field.
+- Prefer heading-boundary semantic chunks over arbitrary token splits.

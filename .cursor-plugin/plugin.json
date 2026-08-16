@@ -1,0 +1,21 @@
+{
+  "name": "kb-genie",
+  "version": "1.0.0",
+  "description": "Transform raw technical documents into an agent-optimized knowledge base with semantic chunks, structured summaries, a living concept wiki, and quality-gated indexing.",
+  "author": {
+    "name": "DTRAN"
+  },
+  "homepage": "https://github.com/DINHDUY/kb-genie",
+  "repository": "https://github.com/DINHDUY/kb-genie",
+  "license": "MIT",
+  "keywords": [
+    "knowledge-base",
+    "ingestion",
+    "chunking",
+    "summarization",
+    "wiki",
+    "indexing",
+    "documentation"
+  ],
+  "logo": "assets/logo.svg"
+}
