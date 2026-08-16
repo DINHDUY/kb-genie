@@ -8,7 +8,8 @@
   "scripts": {
     "start": "node bin/cli.js",
     "init": "node bin/cli.js init",
-    "validate": "node scripts/validate-plugin.mjs"
+    "validate": "node scripts/validate-plugin.mjs",
+    "test": "node scripts/validate-plugin.mjs"
   },
   "keywords": [
     "cursor-plugin",
