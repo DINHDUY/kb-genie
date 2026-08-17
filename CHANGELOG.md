@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.1] - 2026-08-17
+
+### Fixed
+
+- Replace placeholder `package.json` author, repository, homepage, and bugs with the DINHDUY GitHub project.
+- Normalize `bin` and `repository.url` with `npm pkg fix`.
+
 ## [1.1.0] - 2026-08-17
 
 ### Added

@@ -1,7 +1,7 @@
 {
   "name": "kb-genie",
   "displayName": "KB Genie",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Transform raw technical documents into an agent-optimized knowledge base with semantic chunks, structured summaries, a living concept wiki, and quality-gated indexing.",
   "author": {
     "name": "DTRAN"
