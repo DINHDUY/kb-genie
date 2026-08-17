@@ -50,10 +50,10 @@ Then restart Cursor or run **Developer: Reload Window**.
 
 ### Knowledge-base folder template
 
-`npx kb-genie` only copies a `knowledge-base/` folder template. It does not install the Cursor plugin.
+`npx @dtranllc/kb-genie` only copies a `knowledge-base/` folder template. It does not install the Cursor plugin.
 
 ```bash
-npx kb-genie init
+npx @dtranllc/kb-genie init
 ```
 
 ### Ingest Documents
@@ -126,9 +126,9 @@ knowledge-base/
 ## CLI Reference
 
 ```bash
-npx kb-genie              # Show usage
-npx kb-genie init         # Copy knowledge-base template to current directory
-npx kb-genie info         # Show agent inventory
+npx @dtranllc/kb-genie              # Show usage
+npx @dtranllc/kb-genie init         # Copy knowledge-base template to current directory
+npx @dtranllc/kb-genie info         # Show agent inventory
 ```
 
 ## Pipeline

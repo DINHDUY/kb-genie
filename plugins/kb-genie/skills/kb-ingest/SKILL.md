@@ -13,7 +13,7 @@ description: Run a full knowledge base ingestion pipeline. Use when the user wan
 
 ## Instructions
 
-1. Confirm the knowledge base root. Prefer `knowledge-base/` in the workspace. If it is missing, tell the user to run `npx kb-genie init` or create the folder from the plugin template.
+1. Confirm the knowledge base root. Prefer `knowledge-base/` in the workspace. If it is missing, tell the user to run `npx @dtranllc/kb-genie init` or create the folder from the plugin template.
 2. Confirm `raw/` contains documents (PDF, DOCX, HTML, or Markdown). Do not modify files in `raw/`.
 3. Invoke the `kb-orchestrator` agent with the knowledge base root path and either a specific file list or "ingest all new files in raw/".
 4. Let the orchestrator run specialists in order: `kb-ingestion` → `kb-summarizer` → `kb-chunker` → `kb-concept-distiller` → `kb-indexer`, then optional `kb-graph-builder` and `kb-critic`.
