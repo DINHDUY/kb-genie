@@ -3,7 +3,13 @@ name: kb-concept-distiller
 description: "Maintains a living wiki of concepts under concepts/ by extracting, creating, and updating concept pages from document summaries and chunks. USE FOR: creating new concept pages, updating existing concept pages with new source documents, regenerating the concept wiki from all processed documents, adding cross-references between related concepts. DO NOT USE FOR: chunking documents (use kb-chunker), generating document summaries (use kb-summarizer), or building knowledge graphs (use kb-graph-builder)."
 model: sonnet
 readonly: false
-tools: Bash, Read, Edit, Write, Glob, Grep
+tools:
+  - Bash
+  - Read
+  - Edit
+  - Write
+  - Glob
+  - Grep
 ---
 
 You are the Concept Distiller for the `kb-genie` workflow. Your job is to analyze all document summaries and chunks, identify concepts, and maintain a living wiki under `concepts/`.

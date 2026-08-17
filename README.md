@@ -16,27 +16,44 @@ Transform raw technical documents into an agent-optimized hierarchical knowledge
 
 | Agent | Model | Role |
 |-------|-------|------|
-| `@kb.orchestrator` | sonnet | Plans ingestion runs, spawns workers, monitors progress, maintains index.yaml, produces status reports |
-| `@kb.ingestion` | sonnet | Detects new/changed files in raw/, converts to clean Markdown, extracts bibliographic metadata |
-| `@kb.summarizer` | sonnet | Produces structured document-level summaries with YAML frontmatter |
-| `@kb.chunker` | sonnet | Splits Markdown into semantic chunks with rich metadata enrichment |
-| `@kb.concept-distiller` | sonnet | Maintains living wiki under concepts/ — creates and updates concept pages |
-| `@kb.indexer` | fast | Keeps index.yaml authoritative — scans outputs, updates catalog |
-| `@kb.graph-builder` | sonnet | Extracts entities and relations from chunks to produce knowledge graph JSON |
-| `@kb.critic` | sonnet | Quality spot-checks of summaries, chunks, concept pages, and index |
+| `@kb-orchestrator` | sonnet | Plans ingestion runs, spawns workers, monitors progress, maintains index.yaml, produces status reports |
+| `@kb-ingestion` | sonnet | Detects new/changed files in raw/, converts to clean Markdown, extracts bibliographic metadata |
+| `@kb-summarizer` | sonnet | Produces structured document-level summaries with YAML frontmatter |
+| `@kb-chunker` | sonnet | Splits Markdown into semantic chunks with rich metadata enrichment |
+| `@kb-concept-distiller` | sonnet | Maintains living wiki under concepts/ — creates and updates concept pages |
+| `@kb-indexer` | fast | Keeps index.yaml authoritative — scans outputs, updates catalog |
+| `@kb-graph-builder` | sonnet | Extracts entities and relations from chunks to produce knowledge graph JSON |
+| `@kb-critic` | sonnet | Quality spot-checks of summaries, chunks, concept pages, and index |
 
 ## Quick Start
 
-### Install
+### Install the Cursor plugin (Import from Repo)
+
+This repository is a Cursor Team Marketplace. Cursor reads [`.cursor-plugin/marketplace.json`](.cursor-plugin/marketplace.json) and loads the plugin from `plugins/kb-genie/`.
+
+1. Push this repository to GitHub.
+2. In Cursor, open **Dashboard → Plugins → Team Marketplaces**.
+3. Choose **Import from Repo** and paste the GitHub URL.
+4. Review the parsed `kb-genie` plugin, then save the marketplace.
+
+### Test locally (optional)
+
+Copy the plugin directory into Cursor’s local plugins folder. Use a real directory — Cursor rejects external symlinks.
 
 ```bash
-npx kb-genie
+mkdir -p ~/.cursor/plugins/local
+rm -rf ~/.cursor/plugins/local/kb-genie
+cp -R plugins/kb-genie ~/.cursor/plugins/local/kb-genie
 ```
 
-Or for a specific target:
+Then restart Cursor or run **Developer: Reload Window**.
+
+### Knowledge-base folder template
+
+`npx kb-genie` only copies a `knowledge-base/` folder template. It does not install the Cursor plugin.
 
 ```bash
-npx kb-genie install
+npx kb-genie init
 ```
 
 ### Ingest Documents
@@ -54,7 +71,7 @@ knowledge-base/
 2. Open Cursor and invoke the orchestrator:
 
 ```
-@kb.orchestrator
+@kb-orchestrator
 
 Knowledge base root: /path/to/knowledge-base/
 Ingest all new files in raw/
@@ -67,20 +84,20 @@ The orchestrator will run all 7 specialist agents automatically, validate output
 You do not have to run the full pipeline every time:
 
 ```
-@kb.chunker
+@kb-chunker
 
 Knowledge base root: /path/to/knowledge-base/
 Documents: whitepaper-2026, spec-api-v2
 ```
 
 ```
-@kb.critic
+@kb-critic
 
 Knowledge base root: /path/to/knowledge-base/
 ```
 
 ```
-@kb.indexer
+@kb-indexer
 
 Knowledge base root: /path/to/knowledge-base/
 ```
@@ -110,7 +127,7 @@ knowledge-base/
 
 ```bash
 npx kb-genie              # Show usage
-npx kb-genie install      # Copy knowledge-base template to current directory
+npx kb-genie init         # Copy knowledge-base template to current directory
 npx kb-genie info         # Show agent inventory
 ```
 

@@ -26,15 +26,15 @@ function readJson(rel) {
 }
 
 function parseFrontmatter(filePath) {
-  const text = fs.readFileSync(filePath, 'utf8');
-  if (!text.startsWith('---\n') && !text.startsWith('---\r\n')) {
+  const text = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
+  if (!text.startsWith('---\n')) {
     return null;
   }
-  const end = text.indexOf('\n---', 4);
+  const end = text.indexOf('\n---\n', 4);
   if (end === -1) return null;
   const block = text.slice(4, end);
   const data = {};
-  for (const line of block.split(/\r?\n/)) {
+  for (const line of block.split('\n')) {
     const match = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/);
     if (!match) continue;
     data[match[1]] = match[2].replace(/^["']|["']$/g, '').trim();
@@ -58,119 +58,186 @@ function walkMarkdown(dir, extensions) {
   return out;
 }
 
+function isSafeRelativePath(value) {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  if (value.startsWith('http://') || value.startsWith('https://')) return true;
+  if (path.isAbsolute(value)) return false;
+  const normalized = path.posix.normalize(value.replace(/\\/g, '/'));
+  return !normalized.startsWith('../') && normalized !== '..';
+}
+
 function assertRelativeSafe(value, label) {
   if (typeof value !== 'string') return;
-  if (value.includes('..') || path.isAbsolute(value)) {
+  if (!isSafeRelativePath(value)) {
     fail(`${label} must be a relative path without '..': ${value}`);
   }
 }
 
+function extractPathValues(value) {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap((entry) => extractPathValues(entry));
+  return [];
+}
+
 const kebab = /^[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
 const kebabStrict = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const marketplaceName = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
-const manifest = readJson('.cursor-plugin/plugin.json');
-if (manifest) {
-  if (!manifest.name || !kebab.test(manifest.name)) {
-    fail('plugin.json name must be lowercase kebab-case');
-  }
-  if (!manifest.description) fail('plugin.json missing description');
-  if (!manifest.version) fail('plugin.json missing version');
-  if (!manifest.author || typeof manifest.author !== 'object' || !manifest.author.name) {
-    fail('plugin.json author must be an object with name');
-  }
-  if (manifest.servers) fail('plugin.json must not use undocumented servers field');
-  if (Array.isArray(manifest.skills) && manifest.skills.some((s) => s && typeof s === 'object' && 'prompt' in s)) {
-    fail('plugin.json skills must be paths, not inline prompt objects');
-  }
-  if (manifest.logo) {
-    assertRelativeSafe(manifest.logo, 'logo');
-    const logoPath = path.join(root, manifest.logo);
-    if (!fs.existsSync(logoPath)) fail(`Logo not found: ${manifest.logo}`);
-  }
-  for (const field of ['agents', 'skills', 'rules', 'commands']) {
-    const value = manifest[field];
-    if (!value) continue;
-    const paths = Array.isArray(value) ? value : [value];
-    for (const p of paths) {
-      if (typeof p !== 'string') continue;
-      assertRelativeSafe(p, field);
-      if (!fs.existsSync(path.join(root, p))) fail(`Declared ${field} path missing: ${p}`);
-    }
-  }
+const marketplace = readJson('.cursor-plugin/marketplace.json');
+if (!marketplace) {
+  summarizeAndExit();
 }
 
-if (fs.existsSync(path.join(root, '.cursor-plugin/marketplace.json'))) {
-  fail('Single-plugin repos should not include .cursor-plugin/marketplace.json');
+if (typeof marketplace.name !== 'string' || !marketplaceName.test(marketplace.name)) {
+  fail('marketplace.json name must be lowercase kebab-case');
+}
+if (!marketplace.owner || typeof marketplace.owner !== 'object' || !marketplace.owner.name) {
+  fail('marketplace.json owner.name is required');
+}
+if (!Array.isArray(marketplace.plugins) || marketplace.plugins.length === 0) {
+  fail('marketplace.json plugins must be a non-empty array');
+  summarizeAndExit();
 }
 
-const skillDirs = fs.existsSync(path.join(root, 'skills'))
-  ? fs.readdirSync(path.join(root, 'skills'), { withFileTypes: true }).filter((e) => e.isDirectory())
-  : [];
-if (skillDirs.length === 0) fail('No skills found under skills/*/SKILL.md');
-for (const dir of skillDirs) {
-  const skillFile = path.join(root, 'skills', dir.name, 'SKILL.md');
-  if (!fs.existsSync(skillFile)) {
-    fail(`Missing ${path.relative(root, skillFile)}`);
+const seenNames = new Set();
+let agentFiles = [];
+let skillDirs = [];
+let commandFiles = [];
+let ruleFiles = [];
+
+for (const [index, entry] of marketplace.plugins.entries()) {
+  const label = `plugins[${index}]`;
+  if (!entry || typeof entry !== 'object') {
+    fail(`${label} must be an object`);
     continue;
   }
-  const fm = parseFrontmatter(skillFile);
-  if (!fm || !fm.name || !fm.description) {
-    fail(`${path.relative(root, skillFile)} needs name and description frontmatter`);
-  } else if (!kebabStrict.test(fm.name)) {
-    fail(`Skill name must be kebab-case: ${fm.name}`);
+  if (typeof entry.name !== 'string' || !kebab.test(entry.name)) {
+    fail(`${label}.name must be lowercase kebab-case`);
+    continue;
   }
-}
+  if (seenNames.has(entry.name)) {
+    fail(`Duplicate plugin name in marketplace: ${entry.name}`);
+  }
+  seenNames.add(entry.name);
 
-const agentFiles = walkMarkdown(path.join(root, 'agents'), ['.md', '.mdc', '.markdown']);
-if (agentFiles.length === 0) fail('No agent files found under agents/');
-for (const file of agentFiles) {
-  const fm = parseFrontmatter(file);
-  const rel = path.relative(root, file);
-  if (!fm || !fm.name || !fm.description) {
-    fail(`${rel} needs name and description frontmatter`);
-  } else if (!kebabStrict.test(fm.name)) {
-    fail(`Agent name must be kebab-case: ${fm.name}`);
+  if (typeof entry.source !== 'string' || !isSafeRelativePath(entry.source)) {
+    fail(`${label}.source must be a safe relative path`);
+    continue;
   }
-  const text = fs.readFileSync(file, 'utf8');
-  if (text.includes('mcp::context7')) {
-    fail(`${rel} declares undeclared MCP tool mcp::context7`);
-  }
-}
 
-const commandFiles = walkMarkdown(path.join(root, 'commands'), ['.md', '.mdc', '.markdown', '.txt']);
-if (commandFiles.length === 0) fail('No command files found under commands/');
-for (const file of commandFiles) {
-  const fm = parseFrontmatter(file);
-  const rel = path.relative(root, file);
-  if (!fm || !fm.name || !fm.description) {
-    fail(`${rel} needs name and description frontmatter`);
-  } else if (!kebabStrict.test(fm.name)) {
-    fail(`Command name must be kebab-case: ${fm.name}`);
+  const pluginDir = path.join(root, entry.source);
+  if (!fs.existsSync(pluginDir) || !fs.statSync(pluginDir).isDirectory()) {
+    fail(`${label}.source directory missing: ${entry.source}`);
+    continue;
   }
-}
 
-const ruleFiles = walkMarkdown(path.join(root, 'rules'), ['.md', '.mdc', '.markdown']);
-if (ruleFiles.length === 0) fail('No rule files found under rules/');
-for (const file of ruleFiles) {
-  const fm = parseFrontmatter(file);
-  const rel = path.relative(root, file);
-  if (!fm || !fm.description || !('alwaysApply' in fm)) {
-    fail(`${rel} needs description and alwaysApply frontmatter`);
+  const manifestRel = path.join(entry.source, '.cursor-plugin/plugin.json');
+  const manifest = readJson(manifestRel);
+  if (!manifest) continue;
+
+  if (!manifest.name || !kebab.test(manifest.name)) {
+    fail(`${entry.name}: plugin.json name must be lowercase kebab-case`);
   }
+  if (manifest.name && manifest.name !== entry.name) {
+    fail(`${entry.name}: marketplace entry name does not match plugin.json name (${manifest.name})`);
+  }
+  if (!manifest.displayName) fail(`${entry.name}: plugin.json missing displayName`);
+  if (!manifest.description) fail(`${entry.name}: plugin.json missing description`);
+  if (!manifest.version) fail(`${entry.name}: plugin.json missing version`);
+  if (!manifest.author || typeof manifest.author !== 'object' || !manifest.author.name) {
+    fail(`${entry.name}: plugin.json author must be an object with name`);
+  }
+  if (manifest.servers) fail(`${entry.name}: plugin.json must not use undocumented servers field`);
+  if (Array.isArray(manifest.skills) && manifest.skills.some((s) => s && typeof s === 'object' && 'prompt' in s)) {
+    fail(`${entry.name}: plugin.json skills must be paths, not inline prompt objects`);
+  }
+
+  for (const field of ['logo', 'agents', 'skills', 'rules', 'commands']) {
+    for (const p of extractPathValues(manifest[field])) {
+      assertRelativeSafe(p, `${entry.name} ${field}`);
+      if (p.startsWith('http://') || p.startsWith('https://')) continue;
+      if (!fs.existsSync(path.join(pluginDir, p))) {
+        fail(`${entry.name}: declared ${field} path missing: ${p}`);
+      }
+    }
+  }
+
+  const pluginSkills = fs.existsSync(path.join(pluginDir, 'skills'))
+    ? fs.readdirSync(path.join(pluginDir, 'skills'), { withFileTypes: true }).filter((e) => e.isDirectory())
+    : [];
+  if (pluginSkills.length === 0) fail(`${entry.name}: no skills found under skills/*/SKILL.md`);
+  for (const dir of pluginSkills) {
+    const skillFile = path.join(pluginDir, 'skills', dir.name, 'SKILL.md');
+    const rel = path.relative(root, skillFile);
+    if (!fs.existsSync(skillFile)) {
+      fail(`Missing ${rel}`);
+      continue;
+    }
+    const fm = parseFrontmatter(skillFile);
+    if (!fm || !fm.name || !fm.description) {
+      fail(`${rel} needs name and description frontmatter`);
+    } else if (!kebabStrict.test(fm.name)) {
+      fail(`Skill name must be kebab-case: ${fm.name}`);
+    }
+  }
+
+  const pluginAgents = walkMarkdown(path.join(pluginDir, 'agents'), ['.md', '.mdc', '.markdown']);
+  if (pluginAgents.length === 0) fail(`${entry.name}: no agent files found under agents/`);
+  for (const file of pluginAgents) {
+    const fm = parseFrontmatter(file);
+    const rel = path.relative(root, file);
+    if (!fm || !fm.name || !fm.description) {
+      fail(`${rel} needs name and description frontmatter`);
+    } else if (!kebabStrict.test(fm.name)) {
+      fail(`Agent name must be kebab-case: ${fm.name}`);
+    }
+  }
+
+  const pluginCommands = walkMarkdown(path.join(pluginDir, 'commands'), ['.md', '.mdc', '.markdown', '.txt']);
+  if (pluginCommands.length === 0) fail(`${entry.name}: no command files found under commands/`);
+  for (const file of pluginCommands) {
+    const fm = parseFrontmatter(file);
+    const rel = path.relative(root, file);
+    if (!fm || !fm.name || !fm.description) {
+      fail(`${rel} needs name and description frontmatter`);
+    } else if (!kebabStrict.test(fm.name)) {
+      fail(`Command name must be kebab-case: ${fm.name}`);
+    }
+  }
+
+  const pluginRules = walkMarkdown(path.join(pluginDir, 'rules'), ['.md', '.mdc', '.markdown']);
+  if (pluginRules.length === 0) fail(`${entry.name}: no rule files found under rules/`);
+  for (const file of pluginRules) {
+    const fm = parseFrontmatter(file);
+    const rel = path.relative(root, file);
+    if (!fm || !fm.description || !('alwaysApply' in fm)) {
+      fail(`${rel} needs description and alwaysApply frontmatter`);
+    }
+  }
+
+  skillDirs = pluginSkills;
+  agentFiles = pluginAgents;
+  commandFiles = pluginCommands;
+  ruleFiles = pluginRules;
 }
 
 for (const required of ['LICENSE', 'README.md', 'bin/cli.js']) {
   if (!fs.existsSync(path.join(root, required))) fail(`Missing ${required}`);
 }
 
-if (errors.length) {
-  console.error('Plugin validation failed:\n');
-  for (const error of errors) console.error(`- ${error}`);
-  process.exit(1);
-}
+summarizeAndExit();
 
-console.log('Plugin validation passed.');
-console.log(`Agents: ${agentFiles.length}`);
-console.log(`Skills: ${skillDirs.length}`);
-console.log(`Commands: ${commandFiles.length}`);
-console.log(`Rules: ${ruleFiles.length}`);
+function summarizeAndExit() {
+  if (errors.length) {
+    console.error('Plugin validation failed:\n');
+    for (const error of errors) console.error(`- ${error}`);
+    process.exit(1);
+  }
+
+  console.log('Plugin validation passed.');
+  console.log(`Agents: ${agentFiles.length}`);
+  console.log(`Skills: ${skillDirs.length}`);
+  console.log(`Commands: ${commandFiles.length}`);
+  console.log(`Rules: ${ruleFiles.length}`);
+  process.exit(0);
+}
