@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.3] - 2026-08-17
+
+### Changed
+
+- Publish the npm CLI as `@dtranllc/kb-genie`. The Cursor plugin id remains `kb-genie`.
+- Release publish workflow uses npm Trusted Publishing (OIDC) with optional `NPM_TOKEN` fallback.
+
+## [1.1.2] - 2026-08-17
+
+### Changed
+
+- Republish as `@dtranllc/kb-genie@1.1.2` because `1.1.1` is already taken on the npm registry.
+
 ## [1.1.1] - 2026-08-17
 
 ### Fixed

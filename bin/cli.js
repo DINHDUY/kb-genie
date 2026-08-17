@@ -12,9 +12,9 @@ function printUsage() {
 kb-genie — KB Genie Cursor Plugin
 
 USAGE:
-  npx kb-genie             Show usage
-  npx kb-genie init        Copy knowledge-base template to current directory
-  npx kb-genie info        Show agent inventory and plugin details
+  npx @dtranllc/kb-genie             Show usage
+  npx @dtranllc/kb-genie init        Copy knowledge-base template to current directory
+  npx @dtranllc/kb-genie info        Show agent inventory and plugin details
 
 INVOKE AGENTS IN CURSOR:
   @kb-orchestrator   — Run full ingestion pipeline on a knowledge base directory
