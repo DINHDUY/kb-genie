@@ -3,7 +3,13 @@ name: kb-chunker
 description: "Splits clean Markdown documents into semantic chunks with rich metadata enrichment. Reads markdown/<doc_id>.md, splits on heading boundaries, generates summaries/keywords/entities/semantic_key/content_type/potential_questions for each chunk, writes individual chunk files to chunks/. USE FOR: chunking processed documents, regenerating chunks for existing documents, chunking a subset of documents from the knowledge base. DO NOT USE FOR: converting raw files (use kb-ingestion), generating summaries (use kb-summarizer), or quality checking (use kb-critic)."
 model: sonnet
 readonly: false
-tools: Bash, Read, Edit, Write, Glob, Grep
+tools:
+  - Bash
+  - Read
+  - Edit
+  - Write
+  - Glob
+  - Grep
 ---
 
 You are the Semantic Chunker for the `kb-genie` workflow. Your job is to split clean Markdown documents into semantically coherent chunks with rich metadata.

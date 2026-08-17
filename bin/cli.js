@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PLUGIN_DIR = path.resolve(__dirname, '..');
-const AGENTS_DIR = path.join(PLUGIN_DIR, 'workflows/kb-genie/agents');
+const AGENTS_DIR = path.join(PLUGIN_DIR, 'plugins/kb-genie/agents');
 const KB_TEMPLATES_DIR = path.join(PLUGIN_DIR, 'templates/knowledge-base');
 
 function printUsage() {
@@ -12,19 +12,19 @@ function printUsage() {
 kb-genie — KB Genie Cursor Plugin
 
 USAGE:
-  npx kb-genie             Show plugin info
-  npx kb-genie install     Copy knowledge-base template to current directory
+  npx kb-genie             Show usage
+  npx kb-genie init        Copy knowledge-base template to current directory
   npx kb-genie info        Show agent inventory and plugin details
 
 INVOKE AGENTS IN CURSOR:
-  @kb.orchestrator   — Run full ingestion pipeline on a knowledge base directory
-  @kb.ingestion      — Convert raw documents to clean Markdown
-  @kb.summarizer     — Generate structured document summaries
-  @kb.chunker        — Split documents into semantic chunks
-  @kb.concept-distiller — Maintain living concept wiki
-  @kb.indexer        — Rebuild authoritative index.yaml
-  @kb.graph-builder  — Build knowledge graph (optional)
-  @kb.critic         — Run quality spot-checks
+  @kb-orchestrator   — Run full ingestion pipeline on a knowledge base directory
+  @kb-ingestion      — Convert raw documents to clean Markdown
+  @kb-summarizer     — Generate structured document summaries
+  @kb-chunker        — Split documents into semantic chunks
+  @kb-concept-distiller — Maintain living concept wiki
+  @kb-indexer        — Rebuild authoritative index.yaml
+  @kb-graph-builder  — Build knowledge graph (optional)
+  @kb-critic         — Run quality spot-checks
 `);
 }
 
@@ -68,15 +68,17 @@ function main() {
   const command = process.argv[2] || '';
 
   switch (command) {
+    case 'init':
     case 'install': {
       const target = process.cwd();
-      console.log('Installing kb-genie...');
+      console.log('Copying knowledge-base template...');
       console.log('Target directory: ' + target);
       installKBTemplate(target);
-      console.log('\nPlugin installed successfully.\n');
+      console.log('\nThis command only creates a knowledge-base/ folder.');
+      console.log('Install the Cursor plugin via Dashboard → Plugins → Import from Repo.\n');
       console.log('Next steps:');
       console.log('1. Place your documents (PDF, DOCX, HTML, Markdown) in knowledge-base/raw/');
-      console.log('2. Open Cursor and invoke @kb.orchestrator');
+      console.log('2. Open Cursor and invoke @kb-orchestrator');
       console.log('3. Provide the knowledge base root path');
       break;
     }

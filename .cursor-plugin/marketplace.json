@@ -1,0 +1,17 @@
+{
+  "name": "kb-genie-marketplace",
+  "owner": {
+    "name": "DTRAN"
+  },
+  "metadata": {
+    "description": "KB Genie Cursor plugin marketplace",
+    "version": "1.1.0"
+  },
+  "plugins": [
+    {
+      "name": "kb-genie",
+      "source": "./plugins/kb-genie",
+      "description": "Transform raw technical documents into an agent-optimized knowledge base with semantic chunks, structured summaries, a living concept wiki, and quality-gated indexing."
+    }
+  ]
+}

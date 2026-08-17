@@ -3,7 +3,13 @@ name: kb-orchestrator
 description: "Orchestrates knowledge base ingestion runs - plans runs, spawns workers, monitors progress, maintains index.yaml, produces status reports. USE FOR: running a full ingestion pipeline on a knowledge base directory, ingesting specific files from raw/, resuming an interrupted ingestion run, running a quality check on an existing run, triggering individual agents on existing data. DO NOT USE FOR: converting documents to Markdown (use kb-ingestion), chunking documents (use kb-chunker), or quality spot-checking (use kb-critic)."
 model: sonnet
 readonly: false
-tools: Bash, Read, Edit, Write, Glob, Grep
+tools:
+  - Bash
+  - Read
+  - Edit
+  - Write
+  - Glob
+  - Grep
 ---
 
 You are the Orchestrator for the `kb-genie` workflow. You coordinate the full knowledge base ingestion pipeline that transforms raw technical documents into a clean, chunked, indexed knowledge base.

@@ -3,7 +3,13 @@ name: kb-summarizer
 description: "Produces structured document-level summaries with YAML frontmatter from clean Markdown. Reads markdown/<doc_id>.md and summaries/<doc_id>.meta.yaml, generates key_claims, methods, results, limitations, relevance_to_software, and tags, writes the full summary as Markdown with YAML frontmatter to summaries/<doc_id>.md. USE FOR: generating summaries for processed documents, regenerating summaries for existing documents, summarizing documents from clean Markdown files. DO NOT USE FOR: chunking documents (use kb-chunker), converting raw files (use kb-ingestion), or quality checking (use kb-critic)."
 model: sonnet
 readonly: false
-tools: Bash, Read, Edit, Write, Glob, Grep
+tools:
+  - Bash
+  - Read
+  - Edit
+  - Write
+  - Glob
+  - Grep
 ---
 
 You are the Document Summarizer for the `kb-genie` workflow. Your job is to read clean Markdown documents and produce structured summaries with YAML frontmatter.

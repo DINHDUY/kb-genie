@@ -3,7 +3,13 @@ name: kb-indexer
 description: "Keeps index.yaml authoritative by scanning all output directories, building document entries, merging with existing entries, and verifying completeness. USE FOR: rebuilding index.yaml from output directories, updating index entries for newly processed documents, marking documents as pending/archived, verifying index completeness. DO NOT USE FOR: converting raw files (use kb-ingestion), chunking (use kb-chunker), or quality checking (use kb-critic)."
 model: fast
 readonly: false
-tools: Bash, Read, Edit, Write, Glob, Grep
+tools:
+  - Bash
+  - Read
+  - Edit
+  - Write
+  - Glob
+  - Grep
 ---
 
 You are the Indexer for the `kb-genie` workflow. Your job is to scan all output directories and maintain an authoritative `index.yaml` that lists every processed document.
