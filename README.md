@@ -1,4 +1,4 @@
-# KB Genie — Agentic Worklow Plugin
+# KB Genie — Agentic Workflow Plugin
 
 Transform raw technical documents into an agent-optimized hierarchical knowledge base with semantic chunks, structured summaries, a living concept wiki, and quality-gated indexing.
 
@@ -25,6 +25,26 @@ Transform raw technical documents into an agent-optimized hierarchical knowledge
 | `@kb-graph-builder` | sonnet | Extracts entities and relations from chunks to produce knowledge graph JSON |
 | `@kb-critic` | sonnet | Quality spot-checks of summaries, chunks, concept pages, and index |
 
+## Skills
+
+Canonical skill files live only under `plugins/kb-genie/skills/`.
+
+| Skill | When to use |
+|-------|-------------|
+| `kb-genie` | Chat starts with `Genie,`, `Genie!`, or `Genie:` — answer from the knowledge base via `kb-rag` only |
+| `kb-ingest` | Run the full ingestion pipeline on `raw/` |
+| `kb-check` | Quality spot-check after an ingestion run |
+| `kb-index-rebuild` | Rebuild stale or incomplete `index.yaml` |
+
+## Commands
+
+| Command | What it does |
+|---------|--------------|
+| `/kb-ingest` | Run the full ingestion pipeline |
+| `/kb-check` | Quality spot-check |
+| `/kb-index-rebuild` | Rebuild `index.yaml` from output directories |
+| `/kb-retrieve` | Retrieve ranked, cited context via `kb-rag` |
+
 ## Quick Start
 
 ### Install the Cursor plugin (Import from Repo)
@@ -47,6 +67,12 @@ cp -R plugins/kb-genie ~/.cursor/plugins/local/kb-genie
 ```
 
 Then restart Cursor or run **Developer: Reload Window**.
+
+For Genie chat and `/kb-retrieve`, install the bundled `kb-rag` CLI:
+
+```bash
+pip install -e plugins/kb-genie/skills/kb-genie/tools/kb-rag
+```
 
 ### Knowledge-base folder template
 
@@ -136,20 +162,20 @@ npx @dtranllc/kb-genie info         # Show agent inventory
 ```
 Input: knowledge base root directory + (optional) file list
          ↓
-[Stage 1]  kb.orchestrator → run log + task queue
+[Stage 1]  kb-orchestrator → run log + task queue
          ↓
-[Stage 2]  kb.ingestion    → markdown/<doc_id>.md + summaries/<doc_id>.meta.yaml
+[Stage 2]  kb-ingestion    → markdown/<doc_id>.md + summaries/<doc_id>.meta.yaml
          ↓
-[Stage 3]  kb.summarizer   → summaries/<doc_id>.md
+[Stage 3]  kb-summarizer   → summaries/<doc_id>.md
          ↓
-[Stage 4]  kb.chunker      → chunks/<chunk_id>.md
+[Stage 4]  kb-chunker      → chunks/<chunk_id>.md
          ↓
-[Stage 5]  kb.concept-distiller → concepts/<concept-slug>.md
+[Stage 5]  kb-concept-distiller → concepts/<concept-slug>.md
          ↓
-[Stage 6]  kb.indexer      → index.yaml
+[Stage 6]  kb-indexer      → index.yaml
          ↓
-[Stage 7]  kb.graph-builder  → graphs/knowledge-graph.json (optional, parallel)
-[Stage 7]  kb.critic         → run log quality report (parallel)
+[Stage 7]  kb-graph-builder  → graphs/knowledge-graph.json (optional, parallel)
+[Stage 7]  kb-critic         → run log quality report (parallel)
          ↓
    Final Status Report → User
 ```
@@ -164,6 +190,9 @@ Input: knowledge base root directory + (optional) file list
 
 # Optional: Python for embedding-based near-duplicate detection
 pip install sentence-transformers numpy
+
+# Optional: kb-rag CLI for Genie chat and /kb-retrieve
+pip install -e plugins/kb-genie/skills/kb-genie/tools/kb-rag
 ```
 
 ## Quality Gates

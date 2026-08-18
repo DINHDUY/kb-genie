@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.4] - 2026-08-18
+
+### Added
+
+- `kb-genie` skill for Genie-prefixed chat and `/kb-retrieve` command, backed by the bundled `kb-rag` CLI.
+- Plugin-scoped `LICENSE` and README component coverage for skills and commands.
+
+### Fixed
+
+- Document kebab-case agent names in the pipeline; remove leftover repo-root `skills/`.
+- Ignore `.temp/` and document `kb-rag` install for Genie chat.
+
 ## [1.1.3] - 2026-08-17
 
 ### Changed
