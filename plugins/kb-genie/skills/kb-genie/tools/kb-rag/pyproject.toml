@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kb-rag"
+version = "0.1.0"
+description = "Retrieve-only RAG toolkit for kb-genie knowledge-base trees"
+requires-python = ">=3.11"
+dependencies = ["PyYAML"]
+
+[project.optional-dependencies]
+embeddings = ["sentence-transformers", "numpy"]
+dev = ["pytest", "hypothesis", "pytest-benchmark", "ruff"]
+
+[project.scripts]
+kb-rag = "kb_rag.cli:main"
+
+[dependency-groups]
+dev = ["pytest", "hypothesis", "pytest-benchmark", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
